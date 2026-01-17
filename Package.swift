@@ -124,7 +124,7 @@ let package = Package(
                 // build with distributed ring support
                 "mlx/mlx/distributed/jaccl/jaccl.cpp",
                 "mlx/mlx/distributed/mpi/mpi.cpp",
-//                "mlx/mlx/distributed/ring/ring.cpp",
+                "mlx/mlx/distributed/ring/no_ring.cpp",
                 "mlx/mlx/distributed/nccl/nccl.cpp",
                 "mlx/mlx/distributed/nccl/nccl_stub",
 
