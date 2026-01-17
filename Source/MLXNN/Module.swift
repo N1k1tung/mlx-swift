@@ -133,6 +133,13 @@ open class Module {
         self._items = items
         self._setters = setters
     }
+    
+    /// Rebuild the internal cache of module items and setters.
+    ///
+    /// Call this method after directly mutating module properties (e.g., `layers`)
+    open func rebuildCaches() {
+        buildCaches()
+    }
 
     /// Return a `NestedDictionary` structure of ``ModuleItem`` representing the ivars of the `Module` instance.
     ///

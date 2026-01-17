@@ -39,11 +39,9 @@ let package = Package(
                 // vendor docs
                 "vendor-README.md",
 
-                // example code + mlx-c distributed
+                // example code
                 "mlx-c/examples",
-                "mlx-c/mlx/c/distributed.cpp",
-                "mlx-c/mlx/c/distributed_group.cpp",
-
+                
                 // vendored library, include header only
                 "json",
 
@@ -123,10 +121,10 @@ let package = Package(
                 "mlx/mlx/backend/metal/kernels",
                 "mlx/mlx/backend/metal/nojit_kernels.cpp",
 
-                // do not build distributed support (yet)
+                // build with distributed ring support
                 "mlx/mlx/distributed/jaccl/jaccl.cpp",
                 "mlx/mlx/distributed/mpi/mpi.cpp",
-                "mlx/mlx/distributed/ring/ring.cpp",
+//                "mlx/mlx/distributed/ring/ring.cpp",
                 "mlx/mlx/distributed/nccl/nccl.cpp",
                 "mlx/mlx/distributed/nccl/nccl_stub",
 
@@ -155,7 +153,7 @@ let package = Package(
                 .define("MLX_VERSION", to: "\"0.24.2\""),
 
                 // Note: not set yet
-                // .define("MLX_ENABLE_NAX", to: "1"),
+                .define("MLX_ENABLE_NAX", to: "1"),
             ],
             linkerSettings: [
                 .linkedFramework("Foundation"),

@@ -62,6 +62,13 @@ make \
     steel_gemm_masked \
     steel_gemm_segmented \
     steel_gemm_splitk \
+    steel_attention \
+    gemm_nax \
+    steel_gemm_fused_nax \
+    steel_gemm_gather_nax \
+    quantized_nax \
+    fp_quantized_nax \
+    steel_attention_nax \
     ternary \
     ternary_ops \
     unary \
