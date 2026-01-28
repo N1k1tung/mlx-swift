@@ -86,9 +86,13 @@ final class CompiledFunction: @unchecked (Sendable) {
 
         // note: this will use the cached compile (via the id)
         // but will be able to re-evaluate with fresh state if needed
+        evalLock.lock()
         var compiled = mlx_closure_new()
         mlx_detail_compile(&compiled, innerClosure, id, shapeless, [], 0)
-        defer { mlx_closure_free(compiled) }
+        defer {
+            mlx_closure_free(compiled)
+            evalLock.unlock()
+        }
 
         let innerInputs = arguments + stateInputs
         let innerInputsVector = new_mlx_vector_array(innerInputs)
@@ -195,7 +199,7 @@ public func compile(
     inputs: [any Updatable] = [], outputs: [any Updatable] = [], shapeless: Bool = false,
     _ f: @Sendable @escaping (MLXArray, MLXArray, MLXArray) -> MLXArray
 )
-    -> (MLXArray, MLXArray, MLXArray) -> MLXArray
+    -> @Sendable (MLXArray, MLXArray, MLXArray) -> MLXArray
 {
     let compileState = CompiledFunction(inputs: inputs, outputs: outputs, shapeless: shapeless) {
         [f($0[0], $0[1], $0[2])]
