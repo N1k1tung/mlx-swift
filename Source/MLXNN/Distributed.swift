@@ -176,6 +176,34 @@ public func shardInPlace(
     module.update(parameters: shardedParams)
 }
 
+public func shardLinearLeafs(
+    model: Module,
+    filter: (String, Module) -> Bool = { _, module in module is Linear || module is QuantizedLinear },
+    sharding: (String) -> String,
+    apply: (Module, String, Either<Int, [Float]>, DistributedGroup) throws -> Module? = { try shardLinear(module: $0, sharding: $1, segments: $2, group: $3) },
+    segments: Either<Int, [Float]> = .left(1),
+    group: DistributedGroup? = nil
+) throws {
+    let group = group ?? DistributedGroup.initialize(strict: false)
+
+    let updates =
+    try model
+        .leafModules()
+        .flattened()
+        .compactMap { (path, m) -> (String, Module)? in
+            if filter(path, m) {
+                if let sharded = try apply(m, sharding(path), segments, group) {
+                    return (path, sharded)
+                }
+            }
+
+            return nil
+        }
+
+    model.update(modules: ModuleChildren.unflattened(updates))
+}
+
+
 /// Create a new linear layer with sharded parameters and distributed communication
 public func shardLinear(
     module: Module,
