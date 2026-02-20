@@ -176,6 +176,7 @@ public func shardInPlace(
     module.update(parameters: shardedParams)
 }
 
+/// Shard module leafs by applying specified sharding method (defaults to linear sharding)
 public func shardLinearLeafs(
     model: Module,
     filter: (String, Module) -> Bool = { _, module in module is Linear || module is QuantizedLinear },
@@ -215,21 +216,21 @@ public func shardLinear(
     
     let group = group ?? DistributedGroup.initialize(strict: false)
     
-    if let linear = module as? Linear {
-        switch sharding {
-        case "all-to-sharded":
-            return AllToShardedLinear.fromLinear(linear, segments: segments, group: group)
-        case "sharded-to-all":
-            return ShardedToAllLinear.fromLinear(linear, segments: segments, group: group)
-        default:
-            throw DistributedError.invalidSharding(sharding)
-        }
-    } else if let quantized = module as? QuantizedLinear {
+    if let quantized = module as? QuantizedLinear {
         switch sharding {
         case "all-to-sharded":
             return QuantizedAllToShardedLinear.fromQuantizedLinear(quantized, segments: segments, group: group)
         case "sharded-to-all":
             return QuantizedShardedToAllLinear.fromQuantizedLinear(quantized, segments: segments, group: group)
+        default:
+            throw DistributedError.invalidSharding(sharding)
+        }
+    } else if let linear = module as? Linear {
+        switch sharding {
+        case "all-to-sharded":
+            return AllToShardedLinear.fromLinear(linear, segments: segments, group: group)
+        case "sharded-to-all":
+            return ShardedToAllLinear.fromLinear(linear, segments: segments, group: group)
         default:
             throw DistributedError.invalidSharding(sharding)
         }
