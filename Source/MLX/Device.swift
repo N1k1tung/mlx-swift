@@ -9,6 +9,7 @@ import Foundation
 public enum DeviceType: String, Hashable, Sendable {
     case cpu
     case gpu
+    case ane
 }
 
 /// Representation of a Device in MLX.
@@ -39,6 +40,7 @@ public final class Device: @unchecked Sendable, Equatable {
             switch deviceType {
             case MLX_CPU: .cpu
             case MLX_GPU: .gpu
+            case MLX_ANE: .ane
             default: .gpu
             }
     }
@@ -50,12 +52,15 @@ public final class Device: @unchecked Sendable, Equatable {
             cDeviceType = MLX_CPU
         case DeviceType.gpu:
             cDeviceType = MLX_GPU
+        case DeviceType.ane:
+            cDeviceType = MLX_ANE
         }
         self.ctx = mlx_device_new_type(cDeviceType, index)
         self.defaultStream =
             switch deviceType {
             case .cpu: .cpu
             case .gpu: .gpu
+            case .ane: .ane
             }
     }
 
@@ -80,14 +85,32 @@ public final class Device: @unchecked Sendable, Equatable {
     /// See ``withDefaultDevice(_:_:)-17vjl``
     static public let gpu: Device = Device(.gpu)
 
+    /// static ANE device
+    ///
+    /// See ``withDefaultDevice(_:_:)-17vjl``
+    static public let ane: Device = Device(.ane)
+
     public var deviceType: DeviceType? {
         var cDeviceType = MLX_CPU
         mlx_device_get_type(&cDeviceType, ctx)
         return switch cDeviceType {
         case MLX_CPU: DeviceType.cpu
         case MLX_GPU: DeviceType.gpu
+        case MLX_ANE: DeviceType.ane
         default: nil
         }
+    }
+
+    /// Returns true if the given device type is available.
+    public static func isAvailable(_ deviceType: DeviceType) -> Bool {
+        Device(deviceType).isAvailable
+    }
+
+    /// Returns availability of this device.
+    public var isAvailable: Bool {
+        var available = false
+        mlx_device_is_available(&available, ctx)
+        return available
     }
 
     // support for global default device
@@ -98,7 +121,7 @@ public final class Device: @unchecked Sendable, Equatable {
         static var _defaultDevice: Device?
     #endif
 
-    @TaskLocal static var _tlDefaultDevice = _resolveGlobalDefaultDevice()
+    @TaskLocal static var _tlDefaultDevice: Device?
 
     private static func _resolveGlobalDefaultDevice() -> Device {
         _lock.withLock {
@@ -111,7 +134,7 @@ public final class Device: @unchecked Sendable, Equatable {
     /// This is used by ``StreamOrDevice/default`` -- the default stream parameter
     /// to most functions.
     static public func defaultDevice() -> Device {
-        _tlDefaultDevice
+        _tlDefaultDevice ?? _resolveGlobalDefaultDevice()
     }
 
     /// Use a device scoped to a task.
@@ -130,7 +153,7 @@ public final class Device: @unchecked Sendable, Equatable {
 
     /// Return the current default stream.
     static func defaultStream() -> Stream {
-        _tlDefaultDevice.defaultStream
+        (_tlDefaultDevice ?? _resolveGlobalDefaultDevice()).defaultStream
     }
 
     /// Set the default device globally.  Prefer the scoped version, ``withDefaultDevice(_:_:)-17vjl``.

@@ -29,7 +29,7 @@ typedef struct mlx_device_ {
 /**
  * Device type.
  */
-typedef enum mlx_device_type_ { MLX_CPU, MLX_GPU } mlx_device_type;
+typedef enum mlx_device_type_ { MLX_CPU, MLX_GPU, MLX_ANE } mlx_device_type;
 
 /**
  * Returns a new empty device.

@@ -98,6 +98,7 @@ import PackageDescription
     let linkerSettings: [LinkerSetting] = [
         .linkedFramework("Foundation"),
         .linkedFramework("Metal"),
+        .linkedFramework("IOSurface"),
         .linkedFramework("Accelerate"),
     ]
 
@@ -179,6 +180,10 @@ let cmlx = Target.target(
         "mlx/mlx/backend/cuda/reduce",
         "mlx/mlx/backend/cuda/steel",
         "mlx/mlx/backend/cuda/unary",
+
+        "mlx/mlx/backend/no_ane/eval.cpp",
+        "mlx/mlx/backend/no_ane/device_info.cpp",
+        "mlx/mlx/backend/no_ane/diagnostics.cpp",
 
         // build variants (we are opting _out_ of these)
         "mlx/mlx/io/no_safetensors.cpp",

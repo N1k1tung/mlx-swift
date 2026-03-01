@@ -79,6 +79,11 @@ mlx_stream mlx_default_cpu_stream_new(void);
  */
 mlx_stream mlx_default_gpu_stream_new(void);
 
+/**
+ * Returns the current default ANE stream.
+ */
+mlx_stream mlx_default_ane_stream_new(void);
+
 /**@}*/
 
 #ifdef __cplusplus

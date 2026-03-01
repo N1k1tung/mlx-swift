@@ -51,6 +51,9 @@ public struct StreamOrDevice: Sendable, CustomStringConvertible, Equatable {
     /// - ``GPU``
     public static let gpu = device(.gpu)
 
+    /// The ``Stream/defaultStream(_:)`` on the ``Device/ane``
+    public static let ane = device(.ane)
+
     public static func stream(_ stream: Stream) -> StreamOrDevice {
         StreamOrDevice(Device.defaultStream())
     }
@@ -84,6 +87,7 @@ public final class Stream: @unchecked Sendable, Equatable {
     let ctx: mlx_stream
 
     public static let gpu = Stream(mlx_default_gpu_stream_new())
+    public static let ane = Stream(mlx_default_ane_stream_new())
     public static let cpu = Stream(mlx_default_cpu_stream_new())
 
     @TaskLocal static var defaultStream: Stream?
@@ -149,6 +153,7 @@ public final class Stream: @unchecked Sendable, Equatable {
         switch device.deviceType {
         case .cpu: .cpu
         case .gpu: .gpu
+        case .ane: .ane
         default: fatalError("Unexpected device type: \(device)")
         }
     }
