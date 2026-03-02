@@ -3,6 +3,7 @@
 #ifndef MLX_ALL_H
 #define MLX_ALL_H
 
+#include "mlx/c/ane.h"
 #include "mlx/c/array.h"
 #include "mlx/c/closure.h"
 #include "mlx/c/compile.h"
