@@ -51,4 +51,9 @@ public enum ANE {
         guard let c = mlx_string_data(s) else { return "" }
         return String(cString: c)
     }
+
+    @discardableResult
+    public static func pinToSurface(_ array: MLXArray) -> Bool {
+        mlx_ane_pin_to_surface(array.ctx) == 0
+    }
 }

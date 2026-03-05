@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "mlx/c/array.h"
 #include "mlx/c/string.h"
 
 #ifdef __cplusplus
@@ -33,6 +34,7 @@ int mlx_ane_get_diagnostics(mlx_ane_diagnostics_snapshot* res);
 int mlx_ane_reset_diagnostics(void);
 int mlx_ane_runtime_is_available(bool* res);
 int mlx_ane_runtime_unavailable_reason(mlx_string* res);
+int mlx_ane_pin_to_surface(mlx_array arr);
 
 /**@}*/
 
