@@ -1,5 +1,3 @@
-/* Copyright © 2026 Apple Inc. */
-
 #ifndef MLX_ANE_H
 #define MLX_ANE_H
 
