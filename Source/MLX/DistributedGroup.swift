@@ -28,14 +28,14 @@ public final class DistributedGroup {
 
     /// Returns whether the distributed API is available.
     public static var isAvailable: Bool {
-        mlx_distributed_is_available()
+        mlx_distributed_is_available(nil)
     }
 
     /// Initializes the distributed group.
     /// - Parameter strict: Whether to initialize in strict mode.
     /// - Returns: A new instance of `DistributedGroup`.
     public static func initialize(strict: Bool) -> DistributedGroup {
-        let group = mlx_distributed_init(strict)
+        let group = mlx_distributed_init(strict, nil)
         return DistributedGroup(group: group)
     }
 

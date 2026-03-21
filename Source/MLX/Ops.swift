@@ -1121,6 +1121,7 @@ public func dequantized(
         &result, w.ctx, scales.ctx, (biases ?? .mlxNone).ctx,
         gs, bits,
         mode.rawValue,
+        MLXArray.mlxNone.ctx,
         dtype,
         stream.ctx)
     return MLXArray(result)
@@ -2290,6 +2291,7 @@ public func quantized(
 
     mlx_quantize(
         &r, w.ctx, gs, bits, mode.rawValue,
+        MLXArray.mlxNone.ctx,
         stream.ctx)
 
     let arrays = mlx_vector_array_values(r)
@@ -2397,6 +2399,8 @@ public func quantizedQuantizedMM(
         x.ctx, w.ctx, (scales ?? .mlxNone).ctx,
         gs, bits,
         mode.rawValue,
+        MLXArray.mlxNone.ctx,
+        MLXArray.mlxNone.ctx,
         stream.ctx
     )
     return MLXArray(result)
