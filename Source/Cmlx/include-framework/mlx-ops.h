@@ -225,6 +225,78 @@ MLX_API array slice_update(
     std::vector<int> axes,
     StreamOrDevice s = {});
 
+/** Slice update and add updates to given slice. */
+MLX_API array slice_update_add(
+    const array& src,
+    const array& update,
+    Shape start,
+    Shape stop,
+    Shape strides,
+    StreamOrDevice s = {});
+
+/** Slice update and add updates to given slice with stride 1 in each dimension.
+ */
+MLX_API array slice_update_add(
+    const array& src,
+    const array& update,
+    Shape start,
+    Shape stop,
+    StreamOrDevice s = {});
+
+/** Slice update and prod updates to given slice. */
+MLX_API array slice_update_prod(
+    const array& src,
+    const array& update,
+    Shape start,
+    Shape stop,
+    Shape strides,
+    StreamOrDevice s = {});
+
+/** Slice update and prod updates to given slice with stride 1 in each
+ * dimension. */
+MLX_API array slice_update_prod(
+    const array& src,
+    const array& update,
+    Shape start,
+    Shape stop,
+    StreamOrDevice s = {});
+
+/** Slice update and max updates to given slice. */
+MLX_API array slice_update_max(
+    const array& src,
+    const array& update,
+    Shape start,
+    Shape stop,
+    Shape strides,
+    StreamOrDevice s = {});
+
+/** Slice update and max updates to given slice with stride 1 in each dimension.
+ */
+MLX_API array slice_update_max(
+    const array& src,
+    const array& update,
+    Shape start,
+    Shape stop,
+    StreamOrDevice s = {});
+
+/** Slice update and min updates to given slice. */
+MLX_API array slice_update_min(
+    const array& src,
+    const array& update,
+    Shape start,
+    Shape stop,
+    Shape strides,
+    StreamOrDevice s = {});
+
+/** Slice update and min updates to given slice with stride 1 in each dimension.
+ */
+MLX_API array slice_update_min(
+    const array& src,
+    const array& update,
+    Shape start,
+    Shape stop,
+    StreamOrDevice s = {});
+
 /** Split an array into sub-arrays along a given axis. */
 MLX_API std::vector<array>
 split(const array& a, int num_splits, int axis, StreamOrDevice s = {});
@@ -666,6 +738,18 @@ min(const array& a,
 /** The minimum of the elements of an array along the given axis. */
 MLX_API array
 min(const array& a, int axis, bool keepdims = false, StreamOrDevice s = {});
+
+/** Returns the Hanning window of size M. */
+MLX_API array hanning(int M, StreamOrDevice s = {});
+
+/** Returns the Hamming window of size M. */
+MLX_API array hamming(int M, StreamOrDevice s = {});
+
+/** Returns the bartlett window of size M. */
+MLX_API array bartlett(int M, StreamOrDevice s = {});
+
+/** Returns the Blackmann window of size M. */
+MLX_API array blackman(int M, StreamOrDevice s = {});
 
 /** Returns the index of the minimum value in the array. */
 MLX_API array argmin(const array& a, bool keepdims, StreamOrDevice s = {});
@@ -1392,6 +1476,7 @@ MLX_API std::vector<array> quantize(
     std::optional<int> group_size = std::nullopt,
     std::optional<int> bits = std::nullopt,
     const std::string& mode = "affine",
+    const std::optional<array>& global_scale = std::nullopt,
     StreamOrDevice s = {});
 
 /** Dequantize a matrix produced by quantize() */
@@ -1402,17 +1487,20 @@ MLX_API array dequantize(
     std::optional<int> group_size = std::nullopt,
     std::optional<int> bits = std::nullopt,
     const std::string& mode = "affine",
+    const std::optional<array>& global_scale = std::nullopt,
     std::optional<Dtype> dtype = std::nullopt,
     StreamOrDevice s = {});
 
 MLX_API array qqmm(
     array x, // input activations
     array w, // maybe quantized weights
-    std::optional<array> w_scales = std::nullopt, // optional scales if w is
-                                                  // quantized
+    const std::optional<array> w_scales = std::nullopt, // optional scales if w
+                                                        // is quantized
     std::optional<int> group_size = std::nullopt,
     std::optional<int> bits = std::nullopt,
     const std::string& mode = "nvfp4",
+    const std::optional<array> global_scale_x = std::nullopt,
+    const std::optional<array> global_scale_w = std::nullopt,
     StreamOrDevice s = {});
 
 /** Convert an E4M3 float8 to the given floating point dtype. */
