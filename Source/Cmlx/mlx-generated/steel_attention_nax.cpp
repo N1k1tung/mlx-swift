@@ -19,10 +19,10 @@ const char* steel_attention_nax() {
 #define STEEL_PRAGMA_NO_UNROLL _Pragma("clang loop unroll(disable)")
 
 ///////////////////////////////////////////////////////////////////////////////
-// Contents from "/private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.3.7003.10.mkybZs/Metal.xctoolchain/usr/metal/32023/lib/clang/32023.864/include/metal/__exec/units.h"
+// Contents from "/private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.5.188.0.XSnyk9/Metal.xctoolchain/usr/metal/32023/lib/clang/32023.883/include/metal/__exec/units.h"
 ///////////////////////////////////////////////////////////////////////////////
 
-#line 1 "/private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.3.7003.10.mkybZs/Metal.xctoolchain/usr/metal/32023/lib/clang/32023.864/include/metal/__exec/units.h"
+#line 1 "/private/var/run/com.apple.security.cryptexd/mnt/com.apple.MobileAsset.MetalToolchain-v17.5.188.0.XSnyk9/Metal.xctoolchain/usr/metal/32023/lib/clang/32023.883/include/metal/__exec/units.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Contents from "mlx/backend/metal/kernels/steel/utils/type_traits.h"
@@ -112,10 +112,6 @@ struct integral_constant {
   METAL_FUNC constexpr operator value_type() const noexcept {
     return value;
   }
-
-  // METAL_FUNC constexpr value_type operator()() const noexcept {
-  //   return value;
-  // }
 };
 
 template <bool B>
@@ -1572,17 +1568,15 @@ template <
       for (short iq = 0; iq < TQ; iq++) {
         STEEL_PRAGMA_UNROLL
         for (short ik = 0; ik < TK; ik++) {
-          const short row_pos = base_row + iq * kU;
-          const short col_pos = base_col + ik * kU;
-
           thread auto& fg = Stile.frag_at(iq, ik);
 
           STEEL_PRAGMA_UNROLL
           for (short ii = 0; ii < stile_t::kFragThrRows; ii++) {
             STEEL_PRAGMA_UNROLL
             for (short jj = 0; jj < stile_t::kFragThrCols; jj++) {
-              const auto r = row_pos + ii * stile_t::kFragRowsJump + sm;
-              const auto c = col_pos + jj + sn;
+              const auto r =
+                  base_row + iq * kU + ii * stile_t::kFragRowsJump + sm;
+              const auto c = base_col + ik * kU + jj + sn;
               const auto loc = ii * stile_t::kFragThrCols + jj;
               fg[loc] = (r < c) ? neg_inf : fg[loc];
             }
@@ -1603,32 +1597,62 @@ template <
       using mtile_t = NAXTile<melem_t, TQ, TK>;
       using mfrag_t = typename mtile_t::frag_type;
 
-      STEEL_PRAGMA_UNROLL
-      for (short iq = 0; iq < TQ; iq++) {
-        STEEL_PRAGMA_UNROLL
-        for (short ik = 0; ik < TK; ik++) {
-          const short row_pos = base_row + iq * kU;
-          const short col_pos = base_col + ik * kU;
-
-          mfrag_t mfrag;
-          mtile_t::NAXFrag_t::load_safe(
-              mfrag,
-              mask,
-              int64_t(mask_params->M_strides[2]),
-              Int<1>{},
-              params->qL,
-              params->kL,
-              row_pos,
-              col_pos);
-
-          thread auto& fg = Stile.frag_at(iq, ik);
-
+      if (base_row + BQ <= params->qL && base_col + BK <= params->kL) {
+        for (short iq = 0; iq < TQ; iq++) {
           STEEL_PRAGMA_UNROLL
-          for (short jj = 0; jj < mtile_t::kElemsPerFrag; jj++) {
-            if constexpr (is_bool) {
-              fg[jj] = mfrag[jj] ? fg[jj] : neg_inf;
-            } else {
-              fg[jj] += M_LOG2E_F * AccumType(mfrag[jj]);
+          for (short ik = 0; ik < TK; ik++) {
+            const int row_pos = base_row + iq * kU;
+            const int col_pos = base_col + ik * kU;
+
+            mfrag_t mfrag;
+            mtile_t::NAXFrag_t::load(
+                mfrag,
+                mask,
+                int64_t(mask_params->M_strides[2]),
+                Int<1>{},
+                row_pos,
+                col_pos);
+
+            thread auto& fg = Stile.frag_at(iq, ik);
+
+            STEEL_PRAGMA_UNROLL
+            for (short jj = 0; jj < mtile_t::kElemsPerFrag; jj++) {
+              if constexpr (is_bool) {
+                fg[jj] = mfrag[jj] ? fg[jj] : neg_inf;
+              } else {
+                fg[jj] += M_LOG2E_F * AccumType(mfrag[jj]);
+              }
+            }
+          }
+        }
+      } else {
+        STEEL_PRAGMA_UNROLL
+        for (short iq = 0; iq < TQ; iq++) {
+          STEEL_PRAGMA_UNROLL
+          for (short ik = 0; ik < TK; ik++) {
+            const int row_pos = base_row + iq * kU;
+            const int col_pos = base_col + ik * kU;
+
+            mfrag_t mfrag;
+            mtile_t::NAXFrag_t::load_safe(
+                mfrag,
+                mask,
+                int64_t(mask_params->M_strides[2]),
+                Int<1>{},
+                params->qL,
+                params->kL,
+                row_pos,
+                col_pos);
+
+            thread auto& fg = Stile.frag_at(iq, ik);
+
+            STEEL_PRAGMA_UNROLL
+            for (short jj = 0; jj < mtile_t::kElemsPerFrag; jj++) {
+              if constexpr (is_bool) {
+                fg[jj] = mfrag[jj] ? fg[jj] : neg_inf;
+              } else {
+                fg[jj] += M_LOG2E_F * AccumType(mfrag[jj]);
+              }
             }
           }
         }
