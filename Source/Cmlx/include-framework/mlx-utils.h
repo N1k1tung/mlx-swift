@@ -14,8 +14,7 @@
 
 namespace mlx::core {
 
-using StreamOrDevice =
-    std::variant<std::monostate, Stream, ThreadLocalStream, Device>;
+using StreamOrDevice = std::variant<std::monostate, Stream, Device>;
 MLX_API Stream to_stream(StreamOrDevice s);
 MLX_API Stream to_stream(StreamOrDevice s, Device default_);
 
@@ -40,10 +39,6 @@ struct StreamContext {
   Stream _stream;
 };
 
-struct MLX_API PrintOptions {
-  int precision{-1};
-};
-
 struct PrintFormatter {
   inline void print(std::ostream& os, bool val);
   inline void print(std::ostream& os, int16_t val);
@@ -59,10 +54,7 @@ struct PrintFormatter {
   inline void print(std::ostream& os, complex64_t val);
 
   bool capitalize_bool{false};
-  PrintOptions format_options;
 };
-
-MLX_API void set_printoptions(PrintOptions options);
 
 MLX_API PrintFormatter& get_global_formatter();
 

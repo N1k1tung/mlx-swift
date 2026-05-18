@@ -20,20 +20,20 @@ class MLX_API KeySequence {
   void seed(uint64_t seed);
   array next();
 
-  // Each thread has its own random key to avoid race condition.
+  // static default
   static KeySequence& default_() {
-    static auto time_seed = []() {
-      auto now = std::chrono::system_clock::now();
-      return std::chrono::duration_cast<std::chrono::milliseconds>(
-                 now.time_since_epoch())
-          .count();
-    }();
-    static thread_local KeySequence ks(time_seed);
+    static KeySequence ks(get_current_time_seed());
     return ks;
   }
 
  private:
   array key_;
+  static uint64_t get_current_time_seed() {
+    auto now = std::chrono::system_clock::now();
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+               now.time_since_epoch())
+        .count();
+  }
 };
 
 /** Get a PRNG key from a seed. */

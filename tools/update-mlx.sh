@@ -62,7 +62,6 @@ make \
     steel_gemm_gather_nax \
     steel_gemm_masked \
     steel_gemm_segmented \
-    steel_gemm_segmented_nax \
     steel_gemm_splitk \
     steel_gemm_splitk_nax \
     ternary \
