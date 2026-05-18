@@ -35,7 +35,8 @@ public final class DistributedGroup {
     /// - Parameter strict: Whether to initialize in strict mode.
     /// - Returns: A new instance of `DistributedGroup`.
     public static func initialize(strict: Bool) -> DistributedGroup {
-        let group = mlx_distributed_init(strict, nil)
+        var group = mlx_distributed_group_new()
+        _ = mlx_distributed_init(&group, strict, nil)
         return DistributedGroup(group: group)
     }
 
@@ -45,7 +46,8 @@ public final class DistributedGroup {
     ///   - key: The key used to order ranks in the new group.
     /// - Returns: A new `DistributedGroup` representing the subgroup.
     public func split(color: Int32, key: Int32) -> DistributedGroup {
-        let newGroup = mlx_distributed_group_split(group, color, key)
+        var newGroup = mlx_distributed_group_new()
+        _ = mlx_distributed_group_split(&newGroup, group, color, key)
         return DistributedGroup(group: newGroup)
     }
 
